@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function DoctorSection({ doctors, setDoctors }) {
+export default function DoctorCard({ doctors, setDoctors }) {
   const [form, setForm] = useState({
     name: "",
     specialization: "",
