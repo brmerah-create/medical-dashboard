@@ -12,19 +12,5 @@ A modern medical dashboard built using React to manage patients, doctors, and ap
 - CSS
 - HTML (JSX)
 
-##  Project Structure
-src/
- ├── components/
- │   ├── PatientDashboard.js
- │   ├── DoctorCard.js
- │   ├── AppointmentCard.js
- │
- ├── data/
- │   └── fAKEDATA.js
- │
- ├── App.js
- ├── App.css
- ├── index.js
-
  ##  Note
 This project uses fake data and runs entirely on the frontend.
