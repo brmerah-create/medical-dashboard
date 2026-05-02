@@ -1,67 +1,162 @@
 import { useState } from "react";
 
-export default function DoctorSection({ doctors, setDoctors }) {
+const API_URL = "http://127.0.0.1:8000/api/appointments/";
+
+export default function AppointmentCard({
+  appointments,
+  setAppointments,
+  doctors,
+  patients,
+}) {
   const [form, setForm] = useState({
-    name: "",
-    specialization: "",
-    fee: "",
+    patient: "",
+    doctor: "",
+    appointment_date: "",
+    start_time: "",
+    end_time: "",
+    reason: "",
+    is_emergency: false,
+    status: "SCHEDULED",
   });
 
-  const addDoctor = () => {
-    if (!form.name) return;
 
-    setDoctors([...doctors, { ...form, id: Date.now() }]);
+  const addAppointment = () => {
+    fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setAppointments([...appointments, data]);
 
-    setForm({ name: "", specialization: "", fee: "" });
+        setForm({
+          patient: "",
+          doctor: "",
+          appointment_date: "",
+          start_time: "",
+          end_time: "",
+          reason: "",
+          is_emergency: false,
+          status: "SCHEDULED",
+        });
+      })
+      .catch((err) => console.log("Add appointment error:", err));
   };
 
-  const deleteDoctor = (id) => {
-    setDoctors(doctors.filter((d) => d.id !== id));
+
+  const deleteAppointment = (id) => {
+    fetch(`${API_URL}${id}/`, {
+      method: "DELETE",
+    }).then(() => {
+      setAppointments(appointments.filter((a) => a.id !== id));
+    });
   };
 
   return (
-    <div>
-      <h2>🩺 Doctors</h2>
+    <div className="section">
+      <h2>📅 Appointments</h2>
 
+      {/* FORM */}
       <div className="form">
+
+    
+        <select
+          value={form.patient}
+          onChange={(e) => setForm({ ...form, patient: e.target.value })}
+        >
+          <option value="">Select Patient</option>
+          {patients.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.user?.full_name || "Patient"}
+            </option>
+          ))}
+        </select>
+
+
+        <select
+          value={form.doctor}
+          onChange={(e) => setForm({ ...form, doctor: e.target.value })}
+        >
+          <option value="">Select Doctor</option>
+          {doctors.map((d) => (
+            <option key={d.id} value={d.id}>
+              Dr. {d.user?.full_name}
+            </option>
+          ))}
+        </select>
+
+      
         <input
-          placeholder="Name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          type="date"
+          value={form.appointment_date}
+          onChange={(e) =>
+            setForm({ ...form, appointment_date: e.target.value })
+          }
         />
 
         <input
-          placeholder="Specialization"
-          value={form.specialization}
-          onChange={(e) => setForm({ ...form, specialization: e.target.value })}
+          type="time"
+          value={form.start_time}
+          onChange={(e) =>
+            setForm({ ...form, start_time: e.target.value })
+          }
         />
 
         <input
-          placeholder="Fee"
-          value={form.fee}
-          onChange={(e) => setForm({ ...form, fee: e.target.value })}
+          type="time"
+          value={form.end_time}
+          onChange={(e) =>
+            setForm({ ...form, end_time: e.target.value })
+          }
         />
 
-        <button className="btn btn-add" onClick={addDoctor}>
-          Add
+        
+        <input
+          placeholder="Reason"
+          value={form.reason}
+          onChange={(e) =>
+            setForm({ ...form, reason: e.target.value })
+          }
+        />
+
+      
+        <select
+          value={form.status}
+          onChange={(e) => setForm({ ...form, status: e.target.value })}
+        >
+          <option value="SCHEDULED">Scheduled</option>
+          <option value="CONFIRMED">Confirmed</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+
+        <button className="btn" onClick={addAppointment}>
+          ➕ Add Appointment
         </button>
       </div>
 
-      
-      {doctors.map((d) => (
-        <div className="card-vertical" key={d.id}>
-          <div className="card-title"> {d.name}</div>
+      {/* LIST */}
+      <div className="list">
+        {appointments.map((a) => (
+          <div className="card" key={a.id}>
+            <h3>📅 Appointment</h3>
 
-          <div className="card-item">
-            Specialization:{d.specialization}
+            <p> Patient ID: {a.patient}</p>
+            <p> Doctor ID: {a.doctor}</p>
+
+            <p> Date: {a.appointment_date}</p>
+            <p> Time: {a.start_time} → {a.end_time}</p>
+
+            <p> Status: {a.status}</p>
+            <p> Reason: {a.reason}</p>
+
+            <button className="delete" onClick={() => deleteAppointment(a.id)}>
+              Delete
+            </button>
           </div>
-          <div className="card-item"> {d.fee} DZD</div>
-
-          <button className="btn btn-delete" onClick={() => deleteDoctor(d.id)}>
-            Delete
-          </button>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
