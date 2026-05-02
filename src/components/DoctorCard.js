@@ -11,7 +11,7 @@ export default function DoctorCard({ doctors, setDoctors }) {
     consultation_fee: "",
   });
 
-  // ADD DOCTOR
+
   const addDoctor = () => {
     fetch(API_URL, {
       method: "POST",
@@ -42,7 +42,6 @@ export default function DoctorCard({ doctors, setDoctors }) {
       });
   };
 
-  // DELETE DOCTOR
   const deleteDoctor = (id) => {
     fetch(`${API_URL}${id}/`, { method: "DELETE" }).then(() => {
       setDoctors(doctors.filter((d) => d.id !== id));
