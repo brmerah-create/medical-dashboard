@@ -1,67 +1,123 @@
 import { useState } from "react";
 
+const API_URL = "http://127.0.0.1:8000/api/doctors/";
+
 export default function DoctorCard({ doctors, setDoctors }) {
   const [form, setForm] = useState({
-    name: "",
-    specialization: "",
-    fee: "",
+    full_name: "",
+    specialization: "GEN",
+    license_number: "",
+    years_of_experience: "",
+    consultation_fee: "",
   });
 
+  // ADD DOCTOR
   const addDoctor = () => {
-    if (!form.name) return;
+    fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user: {
+          full_name: form.full_name,
+          email: `${form.full_name}@hospital.com`,
+          role: "doctor",
+        },
+        specialization: form.specialization,
+        license_number: form.license_number,
+        years_of_experience: form.years_of_experience,
+        consultation_fee: form.consultation_fee,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setDoctors([...doctors, data]);
 
-    setDoctors([...doctors, { ...form, id: Date.now() }]);
-
-    setForm({ name: "", specialization: "", fee: "" });
+        setForm({
+          full_name: "",
+          specialization: "GEN",
+          license_number: "",
+          years_of_experience: "",
+          consultation_fee: "",
+        });
+      });
   };
 
+  // DELETE DOCTOR
   const deleteDoctor = (id) => {
-    setDoctors(doctors.filter((d) => d.id !== id));
+    fetch(`${API_URL}${id}/`, { method: "DELETE" }).then(() => {
+      setDoctors(doctors.filter((d) => d.id !== id));
+    });
   };
 
   return (
-    <div>
+    <div className="section">
       <h2>🩺 Doctors</h2>
 
       <div className="form">
         <input
-          placeholder="Name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          placeholder="Full Name"
+          value={form.full_name}
+          onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+        />
+
+        <select
+          value={form.specialization}
+          onChange={(e) =>
+            setForm({ ...form, specialization: e.target.value })
+          }
+        >
+          <option value="GEN">General Medicine</option>
+          <option value="CAR">Cardiology</option>
+          <option value="DER">Dermatology</option>
+          <option value="NEU">Neurology</option>
+          <option value="PED">Pediatrics</option>
+        </select>
+
+        <input
+          placeholder="License Number"
+          value={form.license_number}
+          onChange={(e) =>
+            setForm({ ...form, license_number: e.target.value })
+          }
         />
 
         <input
-          placeholder="Specialization"
-          value={form.specialization}
-          onChange={(e) => setForm({ ...form, specialization: e.target.value })}
+          placeholder="Experience (years)"
+          value={form.years_of_experience}
+          onChange={(e) =>
+            setForm({ ...form, years_of_experience: e.target.value })
+          }
         />
 
         <input
           placeholder="Fee"
-          value={form.fee}
-          onChange={(e) => setForm({ ...form, fee: e.target.value })}
+          value={form.consultation_fee}
+          onChange={(e) =>
+            setForm({ ...form, consultation_fee: e.target.value })
+          }
         />
 
-        <button className="btn btn-add" onClick={addDoctor}>
-          Add
+        <button onClick={addDoctor} className="btn">
+          ➕ Add Doctor
         </button>
       </div>
 
-      {/* LIST */}
-      {doctors.map((d) => (
-        <div className="card-vertical" key={d.id}>
-          <div className="card-title"> {d.name}</div>
+      <div className="list">
+        {doctors.map((d) => (
+          <div className="card" key={d.id}>
+            <h3>Dr. {d.user?.full_name}</h3>
 
-          <div className="card-item">
-            Specialization:{d.specialization}
+            <p> Specialization: {d.specialization}</p>
+            <p> Fee: {d.consultation_fee}</p>
+            <p> License: {d.license_number}</p>
+            <p> Experience: {d.years_of_experience} years</p>
+
+            <button className="delete" onClick={() => deleteDoctor(d.id)}>
+              Delete
+            </button>
           </div>
-          <div className="card-item"> {d.fee} DZD</div>
-
-          <button className="btn btn-delete" onClick={() => deleteDoctor(d.id)}>
-            Delete
-          </button>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
