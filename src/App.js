@@ -1,50 +1,37 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import PatientCard from "./components/PatientCard";
+import DoctorCard from "./components/DoctorCard";
+import AppointmentCard from "./components/AppointmentCard";
 
-import PatientSection from "./components/PatientCard";
-import AppointmentSection from "./components/AppointmentCard";
-import DoctorSection from "./components/DoctorCard";
-
-import "./App.css";
+const API_PATIENTS = "http://127.0.0.1:8000/api/patients/";
+const API_DOCTORS = "http://127.0.0.1:8000/api/doctors/";
+const API_APPOINTMENTS = "http://127.0.0.1:8000/api/appointments/";
 
 export default function App() {
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [appointments, setAppointments] = useState([]);
 
-  
   useEffect(() => {
-    
-    fetch("http://127.0.0.1:8000/api/patients/")
-      .then(res => res.json())
-      .then(data => setPatients(data))
-      .catch(err => console.error("Patients error:", err));
-
-    
-    fetch("http://127.0.0.1:8000/api/doctors/")
-      .then(res => res.json())
-      .then(data => setDoctors(data))
-      .catch(err => console.error("Doctors error:", err));
-
-    
-    fetch("http://127.0.0.1:8000/api/appointments/")
-      .then(res => res.json())
-      .then(data => setAppointments(data))
-      .catch(err => console.error("Appointments error:", err));
+    fetch(API_PATIENTS).then((res) => res.json()).then(setPatients);
+    fetch(API_DOCTORS).then((res) => res.json()).then(setDoctors);
+    fetch(API_APPOINTMENTS).then((res) => res.json()).then(setAppointments);
   }, []);
 
   return (
     <div className="app">
-      <h1>🏥 Medical Dashboard</h1>
+      <h1>🏥 Hospital Dashboard</h1>
 
-      <PatientSection patients={patients} setPatients={setPatients} />
+      <PatientCard patients={patients} setPatients={setPatients} />
 
-      <AppointmentSection
-        doctors={doctors}
+      <DoctorCard doctors={doctors} setDoctors={setDoctors} />
+
+      <AppointmentCard
         appointments={appointments}
         setAppointments={setAppointments}
+        doctors={doctors}
+        patients={patients}
       />
-
-      <DoctorSection doctors={doctors} setDoctors={setDoctors} />
     </div>
   );
 }
